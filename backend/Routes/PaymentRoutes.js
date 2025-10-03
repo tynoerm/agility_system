@@ -51,7 +51,7 @@ router.post('/payments', async (req, res) => {
     // Create Paynow payment – use your registered email OR omit it in test mode
     const payment = paynow.createPayment(`Loan-${loanId}`,'tinomutendamutemaringa@gmail.com'); 
     // if you want to include your merchant email instead:
-    // const payment = paynow.createPayment(`Loan-${loanId}`, 'tinomutendamutemaringa@gmail.com');
+    
 
     payment.add(`Loan repayment ${loanId}`, Number(amount));
 
