@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 // MySQL Connection Pool (Direct Credentials)
 // ======================
 const db = mysql.createPool({
-  host: 'bluebaby.co.zw',
+  host: '192.138.189.160',
   user: 'bluebaby_bluebaby',
   password: 'microfinance2025',
   database: 'bluebaby_agility_finance',
@@ -94,3 +94,4 @@ app.get('/api/test-db', async (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
