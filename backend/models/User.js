@@ -13,8 +13,7 @@ const userSchema = new mongoose.Schema({
   address: String,
   phone: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  nextOfKin1: nextOfKinSchema,
-  nextOfKin2: nextOfKinSchema,
+  nextOfKin: nextOfKinSchema, 
 }, { timestamps: true });
 
 export default mongoose.model('User', userSchema);
