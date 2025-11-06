@@ -2,7 +2,7 @@
 // Import Dependencies
 // ======================
 import express from 'express';
-import mongoose from 'mongoose';
+import mysql from 'mysql2/promise';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
@@ -22,13 +22,27 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // ======================
-// MongoDB Connection
+// MySQL Connection
 // ======================
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://tinomutendaishemutemaringa:CVLBrON86Bn8FaLB@cluster0.z2ahbni.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const db = await mysql.createConnection({
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASS || '',
+  database: process.env.DB_NAME || 'loan_app_db',
+});
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch((err) => console.error('❌ MongoDB connection error:', err));
+try {
+  await db.connect();
+  console.log('✅ Connected to MySQL Database');
+} catch (err) {
+  console.error('❌ MySQL connection error:', err);
+}
+
+// Make DB available to all routes
+app.use((req, res, next) => {
+  req.db = db;
+  next();
+});
 
 // ======================
 // Import Routes
@@ -52,7 +66,7 @@ app.use('/api/loanstobepaid', PaymentRoutes);
 // Default Route
 // ======================
 app.get('/', (req, res) => {
-  res.send('✅ Node.js backend running with MongoDB!');
+  res.send('✅ Node.js backend running with MySQL!');
 });
 
 // ======================
@@ -61,3 +75,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
+export default db;

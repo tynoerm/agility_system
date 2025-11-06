@@ -1,8 +1,6 @@
 import express from 'express';
 import { Paynow } from 'paynow';
-import Transaction from '../models/Transaction.js';
-import Loan from '../models/Loan.js';
-
+import db from '../config/db.js'; // your MySQL connection file (mysql2)
 const router = express.Router();
 
 function formatPhoneNumber(phone) {
@@ -12,11 +10,15 @@ function formatPhoneNumber(phone) {
   return p;
 }
 
+// Paynow credentials
 const paynow = new Paynow('22028', '99335ca4-e96a-4d5a-91c8-59f0bc7e947b');
 
+// =====================
+// GET all loans
+// =====================
 router.get('/', async (req, res) => {
   try {
-    const loans = await Loan.find({}, 'amount _id');
+    const [loans] = await db.query('SELECT id, amount FROM loans');
     res.json(loans);
   } catch (err) {
     console.error('DB error:', err);
@@ -24,6 +26,9 @@ router.get('/', async (req, res) => {
   }
 });
 
+// =====================
+// Initiate Payment
+// =====================
 router.post('/payments', async (req, res) => {
   const { loanId, amount, phone, paymentMethod } = req.body;
 
@@ -37,14 +42,12 @@ router.post('/payments', async (req, res) => {
     const result = await paynow.sendMobile(payment, formattedPhone, paymentMethod.toLowerCase());
 
     if (result.success) {
-      const transaction = new Transaction({
-        loanId,
-        phone: formattedPhone,
-        amount,
-        method: paymentMethod,
-        pollUrl: result.pollUrl,
-      });
-      await transaction.save();
+      // Save transaction in MySQL
+      await db.query(
+        'INSERT INTO transactions (loan_id, phone, amount, method, poll_url, status) VALUES (?, ?, ?, ?, ?, ?)',
+        [loanId, formattedPhone, amount, paymentMethod, result.pollUrl, 'initiated']
+      );
+
       res.json({ success: true, message: 'Payment initiated', pollUrl: result.pollUrl });
     } else {
       res.status(400).json({ success: false, message: result.error });
@@ -55,13 +58,19 @@ router.post('/payments', async (req, res) => {
   }
 });
 
+// =====================
+// Poll Payment Status
+// =====================
 router.get('/payments/status', async (req, res) => {
   const { pollUrl } = req.query;
   if (!pollUrl) return res.status(400).json({ success: false, message: 'pollUrl required' });
 
   try {
     const status = await paynow.pollTransaction(pollUrl);
-    await Transaction.findOneAndUpdate({ pollUrl }, { status: status.status });
+
+    // Update transaction record
+    await db.query('UPDATE transactions SET status = ? WHERE poll_url = ?', [status.status, pollUrl]);
+
     res.json(status);
   } catch (err) {
     console.error('Poll error:', err);
