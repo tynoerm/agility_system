@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "MicrofinanceApp",
+    "slug": "microfinance-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.tinomutenda.microfinanceapp"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "owner": "tynoer",
+    "extra": {
+      "eas": {
+        "projectId": "9a35f615-463b-41b1-a713-58ad673c446f"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9a35f615-463b-41b1-a713-58ad673c446f"
+    }
+  }
+}
